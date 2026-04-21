@@ -78,7 +78,13 @@ export default function LoginPage() {
                   type="text"
                   placeholder="아이디를 입력하세요"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 12)
+                    setEmail(val)
+                  }}
+                  maxLength={12}
+                  pattern="[A-Za-z0-9]{1,12}"
+                  title="최대 12자리의 영문과 숫자로만 입력해주세요"
                   required
                 />
               </div>
@@ -89,7 +95,13 @@ export default function LoginPage() {
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 12)
+                    setPassword(val)
+                  }}
+                  maxLength={12}
+                  pattern="[A-Za-z0-9]{1,12}"
+                  title="최대 12자리의 영문과 숫자로만 입력해주세요"
                   required
                   autoComplete="current-password"
                 />
