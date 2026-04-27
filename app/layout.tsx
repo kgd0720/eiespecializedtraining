@@ -9,7 +9,7 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
-  title: 'EiE Education — 강사 연수 플랫폼',
+  title: 'EiE specialized training',
   description: 'EiE Education 강사를 위한 온라인 연수 플랫폼. 영상 강의 시청, 테스트 응시, 수료증 발급.',
 }
 

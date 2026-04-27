@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Trash2, GripVertical, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -27,6 +29,14 @@ export function AdminCourseEditor({ course: initialCourse, lessons: initialLesso
   const [courseTitle, setCourseTitle] = useState(initialCourse.title)
   const [courseDesc, setCourseDesc] = useState(initialCourse.description ?? '')
   const [passingScore, setPassingScore] = useState(initialCourse.passing_score)
+  
+  // Evaluation settings state
+  const [evaluationType, setEvaluationType] = useState<'final' | 'lesson' | 'mixed'>(initialCourse.evaluation_type ?? 'final')
+  const [maxRetries, setMaxRetries] = useState<number>(initialCourse.max_retries ?? 0)
+  const [retakeOnFail, setRetakeOnFail] = useState(initialCourse.retake_on_fail ?? false)
+  const [questionCount, setQuestionCount] = useState(initialCourse.question_count ?? 10)
+  const [questionType, setQuestionType] = useState<'multiple_choice' | 'short_answer' | 'mixed'>(initialCourse.question_type ?? 'mixed')
+  
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
 
@@ -55,6 +65,11 @@ export function AdminCourseEditor({ course: initialCourse, lessons: initialLesso
       title: courseTitle,
       description: courseDesc || null,
       passing_score: passingScore,
+      evaluation_type: evaluationType,
+      max_retries: maxRetries || null,
+      retake_on_fail: retakeOnFail,
+      question_count: questionCount,
+      question_type: questionType,
       updated_at: new Date().toISOString(),
     }).eq('id', initialCourse.id)
     setSaveMsg('저장되었습니다.')
@@ -140,10 +155,79 @@ export function AdminCourseEditor({ course: initialCourse, lessons: initialLesso
             <Label>강좌 설명</Label>
             <Textarea value={courseDesc} onChange={e => setCourseDesc(e.target.value)} rows={2} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>합격 기준 (%)</Label>
-            <Input type="number" min={0} max={100} value={passingScore} onChange={e => setPassingScore(Number(e.target.value))} className="w-32" />
+          <div className="flex items-center gap-3">
+            <Button onClick={saveCourse} disabled={saving} size="sm">
+              {saving ? '저장 중...' : '정보 저장'}
+            </Button>
+            {saveMsg && (
+              <span className="flex items-center gap-1 text-xs text-accent">
+                <CheckCircle2 className="w-3.5 h-3.5" />{saveMsg}
+              </span>
+            )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Evaluation Settings */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">평가 방식 및 세부 설정</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label>평가 출제 방식</Label>
+              <Select value={evaluationType} onValueChange={(v: 'final'|'lesson'|'mixed') => setEvaluationType(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="방식 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="final">과정 종료형 (100% 시청 후 최종 1회)</SelectItem>
+                  <SelectItem value="lesson">차시별 평가형 (차시 종료 시 자동)</SelectItem>
+                  <SelectItem value="mixed">혼합형 (차시별 + 종합평가)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>테스트 문항 수 (랜덤 출제)</Label>
+              <Input type="number" min={1} value={questionCount} onChange={e => setQuestionCount(Number(e.target.value))} />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label>출제 문제 유형</Label>
+              <Select value={questionType} onValueChange={(v: 'multiple_choice'|'short_answer'|'mixed') => setQuestionType(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="유형 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="multiple_choice">객관식 전용</SelectItem>
+                  <SelectItem value="short_answer">주관식 전용</SelectItem>
+                  <SelectItem value="mixed">객관식 + 주관식 혼합</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>수료 기준 합격 점수 (0~100)</Label>
+              <Input type="number" min={0} max={100} value={passingScore} onChange={e => setPassingScore(Number(e.target.value))} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label>재응시 횟수 제한 (0입력 시 무제한)</Label>
+              <Input type="number" min={0} value={maxRetries} onChange={e => setMaxRetries(Number(e.target.value))} />
+            </div>
+            <div className="flex items-center justify-between border rounded-md px-3 py-2 bg-muted/20">
+              <div className="flex flex-col gap-0.5">
+                <Label className="text-sm font-medium">오답 시 재수강 여부</Label>
+                <span className="text-xs text-muted-foreground">불합격 시 영상을 다시 시청해야 재응시 가능</span>
+              </div>
+              <Switch checked={retakeOnFail} onCheckedChange={setRetakeOnFail} />
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <Button onClick={saveCourse} disabled={saving} size="sm">
               {saving ? '저장 중...' : '정보 저장'}

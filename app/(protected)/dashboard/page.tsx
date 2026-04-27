@@ -8,10 +8,9 @@ import type { Course, Enrollment, Certificate } from '@/lib/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login')
-
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+  // 인증 체크 삭제, 모의 사용자 주입
+  const user = { id: '00000000-0000-0000-0000-000000000000' }
+  const profile = { full_name: 'EiE 사용자' }
 
   // Enrollments with course info
   const { data: enrollments } = await supabase

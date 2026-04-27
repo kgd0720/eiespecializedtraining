@@ -4,9 +4,9 @@
 DO $$
 DECLARE
   new_user_id UUID := gen_random_uuid();
-  admin_id TEXT := 'eieadmin';
-  admin_email TEXT := 'eieadmin@eie.com';
-  admin_pass TEXT := 'eiepass2026';
+  admin_id TEXT := 'admin';
+  admin_email TEXT := 'admin@eie.com';
+  admin_pass TEXT := 'admin';
 BEGIN
   -- 1. Insert into auth.users (Supabase Auth)
   INSERT INTO auth.users (

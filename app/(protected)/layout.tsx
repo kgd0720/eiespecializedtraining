@@ -4,16 +4,16 @@ import { AppSidebar } from '@/components/app-sidebar'
 import type { Profile } from '@/lib/types'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) redirect('/auth/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  // 인증 해제: 모의 프로필 제공
+  const profile: Profile = {
+    id: 'admin-mock-id',
+    full_name: 'EiE 관리자',
+    email: 'admin@eie.com',
+    role: 'admin',
+    avatar_url: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
 
   return (
     <div className="flex min-h-screen">
