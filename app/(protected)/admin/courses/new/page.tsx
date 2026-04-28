@@ -26,7 +26,6 @@ export default function NewCoursePage() {
     setLoading(true)
 
     const supabase = createClient()
-    const user = { id: '00000000-0000-0000-0000-000000000000' }
 
     const { data, error } = await supabase.from('courses').insert({
       title,
@@ -34,7 +33,6 @@ export default function NewCoursePage() {
       passing_score: passingScore,
       thumbnail_url: thumbnailUrl || null,
       is_published: false,
-      created_by: user.id,
     }).select().single()
 
     if (error) { setError(error.message); setLoading(false); return }
